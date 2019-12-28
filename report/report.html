@@ -45,7 +45,17 @@
 
     <br />
 
-    <input multiple="multiple" name="name[]" type="file" id="file" accept=".jpg,.gif,.png,image/gif,image/jpeg,image/png">
+    <input multiple="multiple" name="name[]" type="file" id="file1" accept=".jpg,.gif,.png,image/gif,image/jpeg,image/png">
+    <br /><br />
+    <input multiple="multiple" name="name[]" type="file" id="file2" accept=".jpg,.gif,.png,image/gif,image/jpeg,image/png">
+    <br /><br />
+    <input multiple="multiple" name="name[]" type="file" id="file3" accept=".jpg,.gif,.png,image/gif,image/jpeg,image/png">
+    <br /><br />
+    <input multiple="multiple" name="name[]" type="file" id="file4" accept=".jpg,.gif,.png,image/gif,image/jpeg,image/png">
+    <br /><br />
+    <input multiple="multiple" name="name[]" type="file" id="file5" accept=".jpg,.gif,.png,image/gif,image/jpeg,image/png">
+    <br /><br />
+    <input multiple="multiple" name="name[]" type="file" id="file6" accept=".jpg,.gif,.png,image/gif,image/jpeg,image/png">
     <br /><br />
 
     <button id="send">送信</button>
@@ -91,7 +101,14 @@
 	                params.ip = data.ip;
 	                params.pass = document.getElementById("pass").value;
 
-	                var files = document.getElementById('file').files;
+	                var files = [];
+
+                    for(var i = 1; i < 6; i++){
+                        var file1 = document.getElementById('file' + i).files;
+                        for(var f = 0; f < file1.length; f++){
+                            files = files.concat(file1[f]);
+                        }
+                    }
 
 	                params.filecount = files.length;
 
