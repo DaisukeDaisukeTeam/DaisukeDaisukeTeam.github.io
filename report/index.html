@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+	<script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+</head>
+	<body style="overflow-x: hidden;">
+		<div class="jumbotron" style="min-height: 100vh; min-width:100vw;">
+			<div class="container" style="background-color: #fff; padding-bottom: 5px;">
+				<h1 class="text-center">ぱにぃー</h1>
+				<div id="return1">
+					<table class="table table-striped" id="return" style="max-width:65%;">
+						<tr>
+						    <th>id</th>
+						    <th>状態</th>
+						    <th>プレイヤー</th>
+						 </tr>
+						 <tr>
+						    <th>取得中...</th>
+						    <th></th>
+						    <th></th>
+						 </tr>
+					</table>
+					<div class="row"  style="max-width:65%;">
+						<div class="col-md-6" id="back">
+							
+						</div>
+						<div class="col-md-6" id="next">
+								
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<style type="text/css">
+			.simple_square_btn5 {
+				display: block;
+				position: relative;
+				width: 160px;
+				padding: 0.8em;
+				text-align: center;
+				text-decoration: none;
+				color: #fff;
+				background: #795548;
+			}
+			.simple_square_btn5:hover {
+				 opacity:0.8;
+				 cursor: pointer;
+				 text-decoration: none;
+			}
+		</style>
+
+		<script type="text/javascript">
+			function isNumber(numVal){
+				  var pattern = /^([1-9]\d*|0)$/;
+				  return pattern.test(numVal);
+			}
+
+			var UrlVars = (function(){
+			    var vars = {}; 
+			    var param = location.search.substring(1).split('&');
+			    for(var i = 0; i < param.length; i++) {
+			        var keySearch = param[i].search(/=/);
+			        var key = '';
+			        if(keySearch != -1) key = param[i].slice(0, keySearch);
+			        var val = param[i].slice(param[i].indexOf('=', 0) + 1);
+			        if(key != '') vars[key] = decodeURI(val);
+			    } 
+			    return vars; 
+			})();
+
+			var p = UrlVars.p || 1;
+
+			var TYPE_WAITING = 0;//待機
+			var TYPE_WITHDRAW = 1;//取り下げ
+			var TYPE_WARNING = 2;//警告
+			var TYPE_DEALT = 3;//対処済み
+			var TYPE_BANNED = 4;//入室禁止
+			var TYPE_IMPROVEMENT = 5;//態度改善
+
+			var TYPE_CHAT = 0;//チャット荒らし
+			var TYPE_CHAT1 = 1;//暴言・煽り行為
+			var TYPE_CHEAT = 2;//mod・チートの使用
+			var TYPE_BLOCK = 3;//ブロック
+			var TYPE_OTHER = 4;//その他
+
+			function TranslationStatus(Status) {
+			 	switch(Status){
+			 		case TYPE_WAITING:
+			 			return "判断待ち";
+			 		case TYPE_WITHDRAW:
+			 			return "取り下げ";
+			 		case TYPE_WARNING:
+			 			return "警告";
+			 		case TYPE_DEALT:
+			 			return "対処済み";
+			 		case TYPE_BANNED:
+			 			return "入室禁止";
+			 		case TYPE_IMPROVEMENT:
+			 			return "態度改善";
+			 	}
+			 } 
+			 do{
+				 if(!isNumber(p)||p < 0){
+						document.getElementById("return1").innerHTML = "<h2>そのようなページは存在致しません。</h2>";
+						break;
+				}
+
+				$.ajax({
+				    type: "GET",
+				    url: "https://script.google.com/macros/s/AKfycbz3JL_FHZHumaGgD2uEe9xFwtkUygMVhDag0OgaTQ4Lg8hDszw/exec?p=" + p,
+				    dataType: "jsonp",
+				    jsonpCallback:"callback",
+				    timeout:5000
+				})
+				.done(function(data){
+					var startid = data[data.length - 2];
+					var endid = data[data.length - 1];
+
+					data.pop();
+
+					console.log(data);
+
+					var html = "<tr><th>id</th><th>状態</th><th>プレイヤー</th></tr>";
+					for(var i = data.length - 2; i >= 0; i--){
+						html += "<tr><th><a href='page.html?n=" + (startid + i) + "'>No." + (startid + i) + "</a></th><th>" + TranslationStatus(data[i][2]) + "</th><th>" + data[i][1] + "</th></tr>";
+					}
+				   console.log(html);
+
+				   if((p * 20) < endid){
+				   		console.log("test");
+				   		document.getElementById("next").innerHTML = '<a class="btn btn-primary" href="?p='+ (parseInt(p) + 1) +'" style="width: 100%;" role="button">次へ</a>';
+				   }
+
+				   if(p != 1){
+				   		console.log("test");
+				   		document.getElementById("back").innerHTML = '<a class="btn btn-primary" href="?p='+ (parseInt(p) - 1) +'" style="width: 100%;" role="button">戻る</a>';
+				   }
+
+				   document.getElementById("return").innerHTML = html;
+				})
+				.fail(function(jqXHR,textStatus,errorThrown){
+				  console.log('['+textStatus+'] '+errorThrown);
+				});
+			}while(false);
+		</script>
+	</body>
+</html>

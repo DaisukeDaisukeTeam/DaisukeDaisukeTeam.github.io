@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+	<script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+	<style type="text/css">
+		.img{
+			width: 200px;
+			height: auto;
+		}
+		.background-img{
+			background-size: cover;
+    		background-position: center center;
+		}
+
+		.kanso {
+			background-color: #eff1f5;
+			//border: 1px solid #999;
+		}
+		.kanso:focus {
+			background-color: #f9f9f9;
+			//border: 1px solid #ff9900;
+			//outline: 0;
+		}
+	</style>
+</head>
+	<body style="overflow-x: hidden;">
+		<div class="jumbotron" style="min-height: 100vh; min-width:100vw; margin-bottom: 0;">
+			<div class="container" style="background-color: #fff; padding-bottom:20px;">
+				<h1 class="text-center">ぱにぃー</h1>
+				<div id="test">
+					<div class="row">
+						<div class="col-md-6">
+							<table class="table table-striped" id="return" style="max-width:90%;">
+								 <!--tr>
+								    <th>判断待ち</th>
+								    <th>test</th>
+								 </tr-->
+							</table>
+						</div>
+						<div class="col-md-6" id="img_box" style="height: 50%">
+							<!--div class="img-flex-2">
+								<img src="https://drive.google.com/uc?id=1qbKbQRW-TBY6s_NXODfAHF6z_lIcpMDF" alt="" class="img img-rounded">
+								<img src="https://drive.google.com/uc?id=11xIQm_LdOFJHIHlL2LuhENx5zv8J4D5D" alt="" class="img img-rounded">
+							</div-->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container" id="comment1" style="margin-top:20px;">
+				<h3>コメントを残す:</h3>
+				名前:<br />
+				<input type="text" id="name" class="kanso" style="width:100%; max-width: 318px;"><br />
+				パスワード：<br />
+				<input type="password" id="pass" name="pass" size="10" maxlength="7" class="kanso" style="width:100%; max-width: 108px;"><br />
+				<div id="admin_setting" style="display: none;">
+					状態<br />
+					<select id="target">
+						<option id="select_0">=変更しない=
+						<option id="select_1">判断待ち
+						<option id="select_2">取り下げ
+						<option id="select_3">警告
+						<option id="select_4">対処済み
+						<option id="select_5">入室禁止
+						<option id="select_6">態度改善
+					</select><br />
+				</div>
+				コメント:<br />
+				<textarea id="kanso" name="kanso" rows="4" cols="60" class="kanso" style="width:100%; max-width: 500px;"></textarea><br />
+				<button type="button" class="btn btn-primary" onclick="send()">送信</button><br /><br />
+				<!--div id="admin_setting" style="display: none;">
+					<hr>
+					「状態」を変更する<br /><br />
+					<select id="target">
+						<option id="select_0">=変更しない=
+						<option id="select_1">待機
+						<option id="select_2">取り下げ
+						<option id="select_3">警告
+						<option id="select_4">対処済み
+						<option id="select_5">入室禁止
+						<option id="select_6">態度改善
+					</select><br /><br />
+					<button type="button" class="btn btn-primary" onclick="change_status()">変更</button><br />
+				</div-->
+			</div>
+		</div>
+		<script type="text/javascript">
+			document.getElementById("return").innerHTML = "<h6>取得中...</h6>";
+
+			function isNumber(numVal){
+				  var pattern = /^([1-9]\d*|0)$/;
+				  return pattern.test(numVal);
+			}
+
+			var UrlVars = (function(){
+			    var vars = {}; 
+			    var param = location.search.substring(1).split('&');
+			    for(var i = 0; i < param.length; i++) {
+			        var keySearch = param[i].search(/=/);
+			        var key = '';
+			        if(keySearch != -1) key = param[i].slice(0, keySearch);
+			        var val = param[i].slice(param[i].indexOf('=', 0) + 1);
+			        if(key != '') vars[key] = decodeURI(val);
+			    } 
+			    return vars; 
+			})();
+
+			var n = UrlVars.n || -1;
+
+			var now_status;
+			var ip_address;
+
+			var TYPE_WAITING = 0;//待機
+			var TYPE_WITHDRAW = 1;//取り下げ
+			var TYPE_WARNING = 2;//警告
+			var TYPE_DEALT = 3;//対処済み
+			var TYPE_BANNED = 4;//入室禁止
+			var TYPE_IMPROVEMENT = 5;//態度改善
+
+			var TYPE_CHAT = 0;//チャット荒らし
+			var TYPE_CHAT1 = 1;//暴言・煽り行為
+			var TYPE_CHEAT = 2;//mod・チートの使用
+			var TYPE_BLOCK = 3;//ブロック
+			var TYPE_OTHER = 4;//その他
+
+			function TranslationStatus(Status) {
+			 	switch(Status){
+			 		case TYPE_WAITING:
+			 			return "判断待ち";
+			 		case TYPE_WITHDRAW:
+			 			return "取り下げ";
+			 		case TYPE_WARNING:
+			 			return "警告";
+			 		case TYPE_DEALT:
+			 			return "対処済み";
+			 		case TYPE_BANNED:
+			 			return "入室禁止";
+			 		case TYPE_IMPROVEMENT:
+			 			return "態度改善";
+			 	}
+			 }
+
+			 function TranslationStatus1(Status){
+			 	switch(Status){
+			 		case "=変更しない=":
+			 			return -1;
+			 		case "判断待ち":
+			 			return TYPE_WAITING;
+			 		case "取り下げ":
+			 			return TYPE_WITHDRAW;
+			 		case "警告":
+			 			return TYPE_WARNING;
+			 		case "対処済み":
+			 			return TYPE_DEALT;
+			 		case "入室禁止":
+			 			return TYPE_BANNED;
+			 		case "態度改善":
+			 			return TYPE_IMPROVEMENT;
+			 	}
+			 }
+
+			 function TranslationReason(Reason){
+            	switch(Reason){
+            		case TYPE_CHAT:
+            			return "チャット荒らし";
+            		case TYPE_CHAT1:
+            			return "暴言・煽り行為";
+            		case TYPE_CHEAT:
+            			return "mod・チートの使用";
+            		case TYPE_BLOCK:
+            			return "ブロック";
+            		default://TYPE_OTHER
+            			return "その他";
+            	}
+            }
+
+            function TranslatioTime(str){
+            	console.log(str);
+            	return str.replace(/T/g, ' ').replace(/.000Z/g, '');
+            }
+
+            do{
+				if(!isNumber(n)||n < 0){
+					document.getElementById("return").innerHTML = "<h2>そのようなぱにぃ番号は存在いたしません。</h2>";
+					break;
+				}
+
+				$.ajax({
+				    type: "GET",
+				    url: "https://script.google.com/macros/s/AKfycbzDuiztZDwBgO3jaboW0baY_1L3bbddTBDFCtc0CCFsHOAbE6mm/exec?n=" + n,
+				    dataType: "jsonp",
+				    jsonpCallback:"callback",
+				    timeout:5000
+				})
+				.done(function(data){
+					do{
+						if(data[0] == 404) {
+							document.getElementById("return").innerHTML = "<h2>そのようなぱにぃ番号は存在いたしません。</h2>";
+							break;
+						}
+
+						data = data[0];
+
+						var imgcount = data[6];
+
+						var comment_count = data[7];
+
+						var html = "<h2>No. "+ n +"</h2><tr><th>状態</th><th>"+ TranslationStatus(data[2]) +"</th></tr>";
+						html += "<tr><th>対象プレイヤー</th><th>"+ data[0] +"</th></tr>";
+						html += "<tr><th>報告プレイヤー</th><th>"+ data[1] +"</th></tr>";
+						html += "<tr><th>理由</th><th>"+ TranslationReason(data[3]) +"</th></tr>";
+						html += "<tr><th>報告日時</th><th>"+ TranslatioTime(data[4]) +"</th></tr>";
+						html += "<tr><th>更新日時</th><th>"+ TranslatioTime(data[5]) +"</th></tr>";
+						
+						var img_html = "<h2>証拠など</h2>";
+
+						var count = 0;
+
+						/*
+							<div class="img-flex-2">
+								<img src="https://drive.google.com/uc?id=1qbKbQRW-TBY6s_NXODfAHF6z_lIcpMDF" alt="" class="img img-rounded">
+								<img src="https://drive.google.com/uc?id=11xIQm_LdOFJHIHlL2LuhENx5zv8J4D5D" alt="" class="img img-rounded">
+							</div>
+						*/
+
+						//var testt = "https:\/\/drive.google.com/uc?id=";
+
+						for(var i = 0; i < imgcount; i++){
+							if((i % 2) == 0){//1 3
+								img_html += '<div class="img-flex-2" style="padding-bottom:5px;">';
+							}
+
+							img_html += '<a href="https://drive.google.com/uc?id='+ data[8 + i] +'" target="_blank" style="margin-right: 20px; margin-bottom:10px;"><img src="https://drive.google.com/uc?id='+ data[8 + i] +'" alt="" class="img" style="margin-top:10px; border-radius: 5px;"></a>';
+
+							//img_html += '<a href="https://drive.google.com/uc?id='+ data[7 + i] +'" target="_blank"><div class="img background-img" style="background-image: url("https://drive.google.com/uc?id='+ data[7 + i] +'");"></div></a>';
+
+							if((i % 2) != 0){//1 3
+								img_html += '</div>';
+							}
+						}
+						
+						var offset = 9;
+
+						//comment_count = data[offset];//9
+						//offset++;//10
+
+						img_html += "<br /><h2>変更履歴</h2>";
+
+						for(var i = 0; i < comment_count; i++){
+							img_html += '<div class="row"><div class="col-md-5"><div class="text-muted" style="font-size: 0.9rem;">' + TranslatioTime(data[offset++]) + '</div></div><div class="col-md-6"><div class="text-muted" style="font-size: 0.9rem;">' + data[offset++] + '</div></div></div><div style="padding-bottom:20px; word-break: break-word">' + data[offset++] + '<b> by ' + data[offset++] + '</b></div>';
+
+						}
+
+						document.getElementById("img_box").innerHTML = img_html;
+						document.getElementById("return").innerHTML = html;
+
+						//=============================
+
+						now_status = data[2];
+
+						document.getElementById("select_" + (now_status + 1)).selected = true;
+
+
+						$.get("https://ipinfo.io", function(data){
+							ip_address = data.ip;
+							console.log(ip_address);
+
+							$.ajax({
+							    type:'GET',
+							    url: "https://script.google.com/macros/s/AKfycbx0R_nAcRR0SHswZBs2zIKBL_y1P55iHpBRpzBwYAFhZhMfszM/exec?ip=" + ip_address,
+							    dataType: "jsonp",
+							    jsonpCallback:"callback",
+							    timeout:5000
+							})
+							.done(function(data){
+								console.log(data);
+								if(data == "yes"){
+									document.getElementById("admin_setting").style.display = "";
+								}
+							})
+							.fail(function(jqXHR,textStatus,errorThrown){
+							  console.log('[' + textStatus + '] ' + errorThrown);
+							});
+						}, "jsonp");
+					}while(false);
+				})
+				.fail(function(jqXHR,textStatus,errorThrown){
+				  console.log('[' + textStatus + '] ' + errorThrown);
+				});
+			}while(false);
+
+			function send(){
+				if(typeof ip_address === 'undefined'){
+					$.get("https://ipinfo.io", function(data){
+						send1(data.ip);
+					}, "jsonp");
+				}
+				send1(ip_address);
+			}
+
+			function send1(ip_address1){
+				var url = "https://script.google.com/macros/s/AKfycbyAk100kjogBoocBEgQTHcCqpyfo11nVvKhIgAcSS_fEM0Uync/exec";
+
+				var params = {};
+
+				params.n = n;//
+
+				params.ip = ip_address1;
+				params.key1 = document.getElementById('pass').value;
+				params.type = TranslationStatus1(document.getElementById('target').value);
+				params.username = document.getElementById('name').value;
+				params.kanso = document.getElementById('kanso').value;
+
+				var html = '<form method="post" action="'+url+'" id="postjump" style="display: none;">';
+				Object.keys(params).forEach(function (key) {
+					html += '<input type="hidden" name="'+key+'" value="'+params[key]+'" >';
+				});
+				html += '</form>';
+
+				$("body").append(html);
+				$('#postjump').submit();
+				$('#postjump').remove();
+			}
+
+			function change_status(){
+
+			}
+		</script>
+	</body>
+</html>
