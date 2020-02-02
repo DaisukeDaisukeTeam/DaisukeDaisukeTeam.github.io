@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+
+	<title>要素回転テスト</title>
+</head>
+<body>
+	<img id="img" src="images.png">
+	<br>
+	<button onclick="test()">回転を実施致します。</button>
+	<script type="text/javascript">
+		function test(){
+			// Code for Safari
+			document.getElementById("img").style.WebkitTransform = "rotate(20deg)"; 
+			// Code for IE9
+			document.getElementById("img").style.msTransform = "rotate(20deg)"; 
+			// Standard syntax
+			document.getElementById("img").style.transform = "rotate(20deg)"; 
+		}
+	</script>
+</body>
+</html>
