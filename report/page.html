@@ -108,7 +108,7 @@
 			}
 
 			var UrlVars = (function(){
-			    var vars = {}; 
+			    var vars = {};
 			    var param = location.search.substring(1).split('&');
 			    for(var i = 0; i < param.length; i++) {
 			        var keySearch = param[i].search(/=/);
@@ -116,8 +116,8 @@
 			        if(keySearch != -1) key = param[i].slice(0, keySearch);
 			        var val = param[i].slice(param[i].indexOf('=', 0) + 1);
 			        if(key != '') vars[key] = decodeURI(val);
-			    } 
-			    return vars; 
+			    }
+			    return vars;
 			})();
 
 
@@ -227,7 +227,7 @@
 						html += "<tr><th>理由</th><th>"+ TranslationReason(data[3]) +"</th></tr>";
 						html += "<tr><th>報告日時</th><th>"+ TranslatioTime(data[4]) +"</th></tr>";
 						html += "<tr><th>更新日時</th><th>"+ TranslatioTime(data[5]) +"</th></tr>";
-						
+
 						var img_html = "<h2>証拠など</h2>";
 
 						var count = 0;
@@ -256,7 +256,7 @@
 								img_html += '</div>';
 							}
 						}
-						
+
 						//var offset = 8 + imgcount;
 
 						//comment_count = data[offset];//9
@@ -284,7 +284,14 @@
 				});
 			}while(false);
 
-			$.get("https://ipinfo.io", function(data){
+			$.ajax({
+				type:'GET',
+				url: "https://ipinfo.io",
+				dataType: "jsonp",
+				jsonpCallback:"callback2",
+				timeout:5000
+			})
+            .done(function(data){
 				ip_address = data.ip;
 				console.log(ip_address);
 
@@ -295,16 +302,20 @@
 					jsonpCallback:"callback1",
 					timeout:5000
 				})
-						.done(function(data){
-							console.log(data);
-							if(data == "yes"){
-								document.getElementById("admin_setting").style.display = "";
-							}
-						})
-						.fail(function(jqXHR,textStatus,errorThrown){
-							console.log('[' + textStatus + '] ' + errorThrown);
-						});
-			}, "jsonp");
+                .done(function(data){
+                    console.log(data);
+                    if(data == "yes"){
+                        document.getElementById("admin_setting").style.display = "";
+                    }
+                })
+                .fail(function(jqXHR,textStatus,errorThrown){
+                    console.log('[' + textStatus + '] ' + errorThrown);
+                });
+			})
+            .fail(function(jqXHR,textStatus,errorThrown){
+                console.log('[' + textStatus + '] ' + errorThrown);
+            });
+
 
 			function send(){
 				if(typeof ip_address === 'undefined'){
